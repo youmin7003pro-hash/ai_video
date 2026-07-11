@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="零基础到第一条 AI 视频的完整教程:两条路线、四类工具、六步流程、可交互提示词生成器与上手项目。">
+<title>AI 做视频 · 从零到一条片子</title>
+<style>
+  :root{
+    --bg:#0e1216; --bg-2:#151b21; --bg-3:#1c242c; --panel:#12181d;
+    --ink:#eef3f6; --ink-dim:#9dabb4; --ink-faint:#5f6d77;
+    --line:#26313b; --line-soft:#1c252d;
+    --amber:#ff9a4d; --amber-deep:#e07a2c;
+    --teal:#3fd4c2; --teal-deep:#16a99a;
+    --good:#5ec269; --warn:#e8b54a; --bad:#e46a5a;
+    --grain:.05;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+    --maxw:1120px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:ui-monospace,"SF Mono","Menlo","Consolas",monospace;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f2f0ea; --bg-2:#ffffff; --bg-3:#faf9f5; --panel:#ffffff;
+      --ink:#16191c; --ink-dim:#4f5b63; --ink-faint:#8b97a0;
+      --line:#e0ddd4; --line-soft:#ebe8e0;
+      --amber:#c8641f; --amber-deep:#a9500f;
+      --teal:#0f9384; --teal-deep:#0a7568;
+      --grain:.03;
+      --shadow:0 18px 44px -24px rgba(40,44,50,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1216; --bg-2:#151b21; --bg-3:#1c242c; --panel:#12181d;
+    --ink:#eef3f6; --ink-dim:#9dabb4; --ink-faint:#5f6d77;
+    --line:#26313b; --line-soft:#1c252d;
+    --amber:#ff9a4d; --amber-deep:#e07a2c; --teal:#3fd4c2; --teal-deep:#16a99a;
+    --grain:.05; --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+  }
+  :root[data-theme="light"]{
+    --bg:#f2f0ea; --bg-2:#ffffff; --bg-3:#faf9f5; --panel:#ffffff;
+    --ink:#16191c; --ink-dim:#4f5b63; --ink-faint:#8b97a0;
+    --line:#e0ddd4; --line-soft:#ebe8e0;
+    --amber:#c8641f; --amber-deep:#a9500f; --teal:#0f9384; --teal-deep:#0a7568;
+    --grain:.03; --shadow:0 18px 44px -24px rgba(40,44,50,.35);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+    font-size:17px;
+  }
+  /* film grain overlay */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
+    opacity:var(--grain);mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *{animation:none!important;transition:none!important}
+  }
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  section{position:relative}
+
+  h1,h2,h3{margin:0;text-wrap:balance;line-height:1.1}
+  a{color:inherit}
+  .mono{font-family:var(--mono)}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--teal);font-weight:600;
+  }
+
+  /* ---------- top bar ---------- */
+  .bar{
+    position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 82%,transparent);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft);
+  }
+  .bar-in{max-width:var(--maxw);margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.02em;font-size:15px}
+  .rec{width:11px;height:11px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 0 var(--bad);animation:rec 2s infinite}
+  @keyframes rec{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 60%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  .bar nav{margin-left:auto;display:flex;gap:22px}
+  .bar nav a{font-size:13.5px;color:var(--ink-dim);text-decoration:none;font-family:var(--mono);letter-spacing:.02em}
+  .bar nav a:hover{color:var(--amber)}
+  .theme-btn{
+    background:var(--bg-3);border:1px solid var(--line);color:var(--ink-dim);
+    width:34px;height:30px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1;
+  }
+  .theme-btn:hover{color:var(--amber);border-color:var(--amber)}
+  @media(max-width:760px){.bar nav{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:72px 0 60px;text-align:center;overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 15% -10%, color-mix(in srgb,var(--teal) 14%,transparent), transparent 55%),
+      radial-gradient(120% 90% at 90% 10%, color-mix(in srgb,var(--amber) 16%,transparent), transparent 55%);
+  }
+  .clap{font-family:var(--mono);font-size:12.5px;letter-spacing:.24em;color:var(--ink-dim);text-transform:uppercase;
+    display:inline-flex;gap:14px;align-items:center;justify-content:center;margin-bottom:26px;flex-wrap:wrap}
+  .clap b{color:var(--teal);font-weight:600}
+  .clap .div{width:1px;height:12px;background:var(--line)}
+  h1.title{
+    font-size:clamp(42px,9vw,104px);font-weight:800;letter-spacing:-.03em;line-height:.94;
+    margin:0 0 6px;
+  }
+  h1.title .l2{
+    display:block;
+    background:linear-gradient(100deg,var(--amber),var(--teal));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p.lede{
+    max-width:640px;margin:26px auto 0;color:var(--ink-dim);font-size:19px;
+  }
+  .hero p.lede b{color:var(--ink);font-weight:600}
+  .hero-cta{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:10px;
+    font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn.primary{background:var(--amber);color:#1a1207;border-color:var(--amber)}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn.ghost:hover{border-color:var(--teal);color:var(--teal)}
+
+  /* filmstrip under hero */
+  .strip{display:flex;gap:8px;justify-content:center;margin-top:52px;flex-wrap:wrap;padding:0 12px}
+  .frame{
+    width:118px;height:76px;border-radius:6px;position:relative;overflow:hidden;flex:0 0 auto;
+    border:1px solid var(--line);background:var(--bg-3);
+    display:flex;align-items:flex-end;
+  }
+  .frame span{font-family:var(--mono);font-size:10px;color:var(--ink);padding:5px 7px;letter-spacing:.04em;position:relative;z-index:2}
+  .frame::before{content:"";position:absolute;inset:0;opacity:.9}
+  .f1::before{background:linear-gradient(135deg,#2a3b4d,#12202b)}
+  .f2::before{background:linear-gradient(135deg,#3a2c1c,#5a3a1f)}
+  .f3::before{background:linear-gradient(135deg,#1c3a36,#0f5148)}
+  .f4::before{background:linear-gradient(135deg,#3a2440,#5a2f4d)}
+  .f5::before{background:linear-gradient(135deg,#243b2a,#123319)}
+  .frame::after{content:"";position:absolute;left:0;right:0;top:0;height:9px;
+    background:repeating-linear-gradient(90deg,transparent 0 6px,rgba(0,0,0,.45) 6px 9px);opacity:.5}
+  @media(max-width:640px){.frame{width:88px;height:58px}}
+
+  /* ---------- generic section ---------- */
+  .sec{padding:78px 0;border-top:1px solid var(--line-soft)}
+  .sec-head{margin-bottom:44px;max-width:720px}
+  .sec-head .num{font-family:var(--mono);font-size:13px;color:var(--amber);letter-spacing:.1em}
+  .sec-head h2{font-size:clamp(28px,4.6vw,44px);font-weight:800;letter-spacing:-.02em;margin:12px 0 14px}
+  .sec-head p{color:var(--ink-dim);font-size:18px;margin:0}
+
+  /* two paths */
+  .paths{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:720px){.paths{grid-template-columns:1fr}}
+  .path{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 26px 28px;
+    position:relative;overflow:hidden;
+  }
+  .path::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+  .path.t2i::before{background:linear-gradient(90deg,var(--teal),transparent)}
+  .path.t2v::before{background:linear-gradient(90deg,var(--amber),transparent)}
+  .path .tag{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .path h3{font-size:22px;margin:8px 0 6px;font-weight:700}
+  .path .h3-en{font-family:var(--mono);font-size:13px;color:var(--teal);font-weight:400}
+  .path.t2v .h3-en{color:var(--amber)}
+  .path p{color:var(--ink-dim);font-size:15.5px;margin:12px 0 18px}
+  .flow{display:flex;flex-wrap:wrap;gap:7px;align-items:center;font-family:var(--mono);font-size:12.5px}
+  .flow .node{background:var(--bg-3);border:1px solid var(--line);border-radius:7px;padding:5px 10px;color:var(--ink)}
+  .flow .arw{color:var(--ink-faint)}
+  .verdict{margin-top:18px;font-size:14px;color:var(--ink-dim);border-top:1px dashed var(--line);padding-top:14px}
+  .verdict b{color:var(--ink)}
+
+  /* ---------- pipeline ---------- */
+  .pipe{display:flex;flex-direction:column;gap:14px}
+  .step{
+    display:grid;grid-template-columns:74px 1fr;gap:22px;align-items:start;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;
+    transition:border-color .2s ease,transform .2s ease;
+  }
+  .step:hover{border-color:var(--teal);transform:translateX(3px)}
+  .step .idx{
+    font-family:var(--mono);font-weight:700;font-size:15px;color:var(--bg);
+    background:linear-gradient(150deg,var(--amber),var(--amber-deep));
+    width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  }
+  .step:nth-child(even) .idx{background:linear-gradient(150deg,var(--teal),var(--teal-deep))}
+  .step h3{font-size:19px;font-weight:700;margin:2px 0 7px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .step h3 .en{font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);font-weight:400;letter-spacing:.04em}
+  .step p{margin:0 0 12px;color:var(--ink-dim);font-size:15.5px}
+  .toolrow{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{
+    font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:20px;
+    background:var(--bg-3);border:1px solid var(--line);color:var(--ink-dim);
+  }
+  .chip.hot{border-color:color-mix(in srgb,var(--amber) 50%,var(--line));color:var(--amber)}
+  .tip{margin-top:11px;font-size:13.5px;color:var(--ink-faint);display:flex;gap:8px}
+  .tip b{color:var(--teal);font-weight:600;white-space:nowrap}
+  @media(max-width:560px){.step{grid-template-columns:1fr;gap:12px}.step .idx{width:40px;height:40px}}
+
+  /* ---------- tool map ---------- */
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:900px){.grid4{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.grid4{grid-template-columns:1fr}}
+  .cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .cat h3{font-size:15px;font-weight:700;margin:0 0 3px;letter-spacing:.01em}
+  .cat .sub{font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
+  .cat ul{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:11px}
+  .cat li{font-size:14.5px;display:flex;flex-direction:column;gap:1px}
+  .cat li .nm{font-weight:600;color:var(--ink)}
+  .cat li .nm .star{color:var(--amber);font-size:11px;margin-left:5px;font-family:var(--mono)}
+  .cat li .ds{font-size:12.5px;color:var(--ink-dim)}
+
+  /* ---------- prompt builder ---------- */
+  .builder{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+  .builder-top{display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--line);background:var(--bg-3)}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#e46a5a}.dot.y{background:#e8b54a}.dot.g{background:#5ec269}
+  .builder-top .ttl{margin-left:8px;font-family:var(--mono);font-size:12.5px;color:var(--ink-dim);letter-spacing:.04em}
+  .builder-body{padding:24px}
+  .bgroup{margin-bottom:20px}
+  .bgroup>.lab{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:9px;display:flex;gap:9px;align-items:center}
+  .bgroup>.lab .cn{color:var(--teal);text-transform:none;letter-spacing:0;font-size:13px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{
+    font-size:13.5px;padding:7px 13px;border-radius:9px;cursor:pointer;
+    background:var(--bg-3);border:1px solid var(--line);color:var(--ink-dim);
+    transition:all .14s ease;user-select:none;
+  }
+  .opt:hover{border-color:var(--teal);color:var(--ink)}
+  .opt[aria-pressed="true"]{background:color-mix(in srgb,var(--amber) 18%,var(--bg-3));border-color:var(--amber);color:var(--amber);font-weight:600}
+  .out{
+    margin-top:22px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;
+  }
+  .out .olab{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .out .olab span{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .copybtn{background:var(--teal);color:#06201d;border:none;border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--mono)}
+  .copybtn:hover{background:var(--teal-deep);color:#fff}
+  #promptOut{font-family:var(--mono);font-size:15px;line-height:1.7;color:var(--ink);min-height:52px}
+  #promptOut .ph{color:var(--ink-faint)}
+  #promptOut em{font-style:normal;color:var(--amber)}
+  #promptOut .cam{color:var(--teal)}
+
+  /* camera glossary */
+  .cams{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:34px}
+  @media(max-width:640px){.cams{grid-template-columns:1fr}}
+  .cam-item{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:baseline;font-size:14.5px;
+    padding:11px 14px;background:var(--panel);border:1px solid var(--line-soft);border-radius:10px}
+  .cam-item .term{font-family:var(--mono);font-size:13px;color:var(--teal);font-weight:600}
+  .cam-item .term b{color:var(--ink);display:block;font-family:var(--font);font-size:14.5px;margin-top:2px}
+  .cam-item .exp{color:var(--ink-dim);font-size:13.5px}
+
+  /* ---------- project ---------- */
+  .project{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px;position:relative;overflow:hidden}
+  .project::before{content:"PROJECT 01";position:absolute;top:18px;right:22px;font-family:var(--mono);
+    font-size:11px;letter-spacing:.2em;color:var(--ink-faint)}
+  .project h3{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:0 0 6px}
+  .project .brief{color:var(--ink-dim);margin:0 0 24px;font-size:16px;max-width:640px}
+  .tasks{display:flex;flex-direction:column;gap:0}
+  .task{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--line-soft);align-items:start}
+  .task:first-child{border-top:none}
+  .task .tc{width:26px;height:26px;border-radius:50%;border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:12px;color:var(--teal);font-weight:700;margin-top:2px}
+  .task h4{margin:0 0 4px;font-size:16px;font-weight:700}
+  .task p{margin:0;color:var(--ink-dim);font-size:14.5px}
+  .task code{font-family:var(--mono);font-size:13px;background:var(--bg-3);padding:2px 7px;border-radius:5px;color:var(--amber);border:1px solid var(--line-soft)}
+
+  /* ---------- pitfalls ---------- */
+  .pits{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:720px){.pits{grid-template-columns:1fr}}
+  .pit{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--bad);border-radius:12px;padding:18px 20px}
+  .pit h4{margin:0 0 6px;font-size:15.5px;font-weight:700;display:flex;gap:9px;align-items:center}
+  .pit h4 .x{color:var(--bad);font-family:var(--mono)}
+  .pit p{margin:0;font-size:14px;color:var(--ink-dim)}
+  .pit p .fix{color:var(--good);font-weight:600}
+
+  /* ---------- footer ---------- */
+  .foot{padding:60px 0 70px;border-top:1px solid var(--line-soft);text-align:center}
+  .foot h3{font-size:26px;font-weight:800;margin:0 0 10px;letter-spacing:-.01em}
+  .foot p{color:var(--ink-dim);max-width:520px;margin:0 auto 24px}
+  .foot .meta{margin-top:40px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:.06em}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .rv.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand"><span class="rec"></span> AI VIDEO LAB</div>
+    <nav>
+      <a href="#map">工具地图</a>
+      <a href="#pipe">六步流程</a>
+      <a href="#prompt">提示词</a>
+      <a href="#project">上手练习</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换深浅色">◐</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="clap">
+      <span>SCENE <b>01</b></span><span class="div"></span>
+      <span>TAKE <b>001</b></span><span class="div"></span>
+      <span>ROLL <b>A</b></span><span class="div"></span>
+      <span>2026 · <b>零基础</b></span>
+    </div>
+    <h1 class="title">用 AI 做视频<span class="l2">从一句话到一条片子</span></h1>
+    <p class="lede">AI 视频不是「输入一句话、按个按钮」就完事。它更像<b>一条拍摄流水线</b>——从脚本、分镜、生成、配音到剪辑,每一步都有对应的 AI 工具。这份教程带你把整条链路走一遍。</p>
+    <div class="hero-cta">
+      <a href="#pipe" class="btn primary">▶ 开始学习</a>
+      <a href="#prompt" class="btn ghost">试试提示词生成器</a>
+    </div>
+    <div class="strip" aria-hidden="true">
+      <div class="frame f1"><span>脚本</span></div>
+      <div class="frame f2"><span>分镜</span></div>
+      <div class="frame f3"><span>生成</span></div>
+      <div class="frame f4"><span>配音</span></div>
+      <div class="frame f5"><span>剪辑</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 心法 ================= -->
+<section class="sec" id="idea">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">// 00 &nbsp;先建立正确认知</div>
+      <h2>两条主路线,先搞清你走哪条</h2>
+      <p>所有 AI 视频工具,本质上都是这两种玩法之一。新手强烈建议从右边的「图生视频」入手——可控性高到不是一个量级。</p>
+    </div>
+    <div class="paths">
+      <div class="path t2v rv">
+        <div class="tag">Path A</div>
+        <h3>文生视频 <span class="h3-en">text-to-video</span></h3>
+        <p>直接给一段文字描述,AI 一步生成画面。快、爽,但你说不准它给你什么——像开盲盒。</p>
+        <div class="flow">
+          <span class="node">一句提示词</span><span class="arw">→</span>
+          <span class="node">AI</span><span class="arw">→</span>
+          <span class="node">成片</span>
+        </div>
+        <div class="verdict"><b>适合:</b> 找灵感、要氛围感空镜、不追求精确画面时。</div>
+      </div>
+      <div class="path t2i rv">
+        <div class="tag">Path B · 推荐</div>
+        <h3>图生视频 <span class="h3-en">image-to-video</span></h3>
+        <p>先用 AI 生成一张满意的<b>关键帧图片</b>,把画面「钉死」,再让 AI 只负责让它动起来。构图、人物、风格全都可控。</p>
+        <div class="flow">
+          <span class="node">生成一张图</span><span class="arw">→</span>
+          <span class="node">选定关键帧</span><span class="arw">→</span>
+          <span class="node">图生视频</span><span class="arw">→</span>
+          <span class="node">成片</span>
+        </div>
+        <div class="verdict"><b>适合:</b> 几乎所有正经创作。稳定、可复现、好返工。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 工具地图 ================= -->
+<section class="sec" id="map">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">// 01 &nbsp;工具地图</div>
+      <h2>手里该备哪些工具</h2>
+      <p>工具太多会挑花眼。按「用途」分四类记就够了,每类挑一个上手即可。带 <span style="color:var(--amber);font-family:var(--mono)">★</span> 的是当下综合体验最省心的。</p>
+    </div>
+    <div class="grid4">
+      <div class="cat rv">
+        <div class="sub">Generate</div>
+        <h3>🎬 生成画面</h3>
+        <ul>
+          <li><span class="nm">可灵 Kling<span class="star">★</span></span><span class="ds">中文友好,运动稳,图生视频强</span></li>
+          <li><span class="nm">Sora 2</span><span class="ds">OpenAI,叙事与物理感领先</span></li>
+          <li><span class="nm">Google Veo 3</span><span class="ds">能直接生成同步音效</span></li>
+          <li><span class="nm">Runway Gen-4</span><span class="ds">运镜控制、特效工具丰富</span></li>
+          <li><span class="nm">海螺 / 即梦</span><span class="ds">国内免费额度友好</span></li>
+        </ul>
+      </div>
+      <div class="cat rv">
+        <div class="sub">Keyframe</div>
+        <h3>🖼 生成分镜图</h3>
+        <ul>
+          <li><span class="nm">即梦 / Midjourney<span class="star">★</span></span><span class="ds">出关键帧、定人物与风格</span></li>
+          <li><span class="nm">Nano Banana</span><span class="ds">改图、保持角色一致性</span></li>
+          <li><span class="nm">Flux</span><span class="ds">开源、可本地跑</span></li>
+        </ul>
+      </div>
+      <div class="cat rv">
+        <div class="sub">Audio</div>
+        <h3>🎙 配音与音乐</h3>
+        <ul>
+          <li><span class="nm">ElevenLabs<span class="star">★</span></span><span class="ds">拟真配音、多语言</span></li>
+          <li><span class="nm">豆包 / 火山语音</span><span class="ds">中文 TTS,免费好用</span></li>
+          <li><span class="nm">Suno</span><span class="ds">一句话生成背景音乐</span></li>
+        </ul>
+      </div>
+      <div class="cat rv">
+        <div class="sub">Assemble</div>
+        <h3>✂️ 剪辑与数字人</h3>
+        <ul>
+          <li><span class="nm">剪映 / CapCut<span class="star">★</span></span><span class="ds">拼接、字幕、调色一条龙</span></li>
+          <li><span class="nm">HeyGen</span><span class="ds">数字人口播视频</span></li>
+          <li><span class="nm">DaVinci</span><span class="ds">专业调色与后期</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 六步流程 ================= -->
+<section class="sec" id="pipe">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">// 02 &nbsp;完整流程</div>
+      <h2>从零做一条片子的六步流水线</h2>
+      <p>这是一条通用链路。你未必每步都要用满——短视频空镜可能三步就够,叙事短片则六步都得走。顺序别乱。</p>
+    </div>
+    <div class="pipe">
+
+      <div class="step rv">
+        <div class="idx">01</div>
+        <div>
+          <h3>写脚本 & 分镜 <span class="en">script + shot list</span></h3>
+          <p>先想清楚「讲什么」。让文字 AI 帮你把想法拆成一个个镜头:每镜时长、画面内容、景别、旁白。这一步定生死。</p>
+          <div class="toolrow"><span class="chip hot">ChatGPT</span><span class="chip hot">Claude</span><span class="chip">豆包</span></div>
+          <div class="tip"><b>提示:</b> 让 AI 输出「分镜表」——序号 / 画面描述 / 时长 / 旁白四列,后面每一步都照着它做。</div>
+        </div>
+      </div>
+
+      <div class="step rv">
+        <div class="idx">02</div>
+        <div>
+          <h3>生成关键帧图 <span class="en">keyframe images</span></h3>
+          <p>按分镜表,一镜一张地把「首帧画面」用文生图做出来。锁定人物长相、构图、色调。角色要一致时,用同一张脸去改图。</p>
+          <div class="toolrow"><span class="chip hot">即梦</span><span class="chip hot">Midjourney</span><span class="chip">Nano Banana</span></div>
+          <div class="tip"><b>提示:</b> 同一部片子固定「画幅 + 风格词 + 光线」,不同镜头才不会像出自两个世界。</div>
+        </div>
+      </div>
+
+      <div class="step rv">
+        <div class="idx">03</div>
+        <div>
+          <h3>图生视频 <span class="en">image → video</span></h3>
+          <p>把关键帧喂给视频模型,只描述「怎么动」:镜头运动 + 主体动作。一次生成 5 秒左右,不满意就重抽(seed 会变),多抽几条挑最好的。</p>
+          <div class="toolrow"><span class="chip hot">可灵</span><span class="chip">Runway</span><span class="chip">海螺</span><span class="chip">Veo</span></div>
+          <div class="tip"><b>提示:</b> 一条 clip 只放一个动作。想要「转身又挥手又下雨」?拆成两镜,别硬塞。</div>
+        </div>
+      </div>
+
+      <div class="step rv">
+        <div class="idx">04</div>
+        <div>
+          <h3>配音 & 音乐 <span class="en">voice + music</span></h3>
+          <p>旁白用 TTS 生成,情绪对不上就换音色或调语速。背景音乐用一句话描述风格生成。有对白就再做口型同步。</p>
+          <div class="toolrow"><span class="chip hot">ElevenLabs</span><span class="chip">豆包语音</span><span class="chip hot">Suno</span></div>
+          <div class="tip"><b>提示:</b> 声音是氛围的一半。哪怕画面一般,配上对的音乐和音效,质感立刻上一档。</div>
+        </div>
+      </div>
+
+      <div class="step rv">
+        <div class="idx">05</div>
+        <div>
+          <h3>剪辑合成 <span class="en">edit + assemble</span></h3>
+          <p>把所有 clip 按分镜顺序拖进时间线,对齐旁白与音乐,加转场、字幕、调色。节奏靠这一步救——废镜头果断删。</p>
+          <div class="toolrow"><span class="chip hot">剪映</span><span class="chip">CapCut</span><span class="chip">DaVinci</span></div>
+          <div class="tip"><b>提示:</b> 卡点剪辑:让画面切换踩在音乐鼓点上,片子瞬间「专业」起来。</div>
+        </div>
+      </div>
+
+      <div class="step rv">
+        <div class="idx">06</div>
+        <div>
+          <h3>检查 & 导出 <span class="en">review + export</span></h3>
+          <p>全屏从头看一遍:有没有穿帮、多指、闪烁、口型对不上。修掉硬伤再导出。竖屏发抖音/小红书,横屏发 B 站/YouTube。</p>
+          <div class="toolrow"><span class="chip">9:16 竖屏</span><span class="chip">16:9 横屏</span><span class="chip">1080p</span></div>
+          <div class="tip"><b>提示:</b> AI 画面的破绽多藏在手、文字、快速运动里。放慢 0.5 倍逐帧看最容易抓到。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= 提示词 ================= -->
+<section class="sec" id="prompt">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">// 03 &nbsp;核心技能</div>
+      <h2>提示词:像给摄影师下指令</h2>
+      <p>写视频提示词有个万能公式。别写「一个漂亮的女孩」这种空话——把<b>主体、动作、镜头、光线、风格</b>一项项说清楚,AI 才知道你要什么。下面这个生成器,点一点就能拼出一条合格提示词。</p>
+    </div>
+
+    <div class="builder rv">
+      <div class="builder-top">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="ttl">prompt_builder.mov — 点选各项自动生成</span>
+      </div>
+      <div class="builder-body">
+        <div class="bgroup" data-slot="subject">
+          <div class="lab">Subject <span class="cn">主体</span></div>
+          <div class="opts">
+            <div class="opt" tabindex="0">一位穿红裙的女孩</div>
+            <div class="opt" tabindex="0">一只橘猫</div>
+            <div class="opt" tabindex="0">一辆复古跑车</div>
+            <div class="opt" tabindex="0">一杯冒着热气的咖啡</div>
+          </div>
+        </div>
+        <div class="bgroup" data-slot="action">
+          <div class="lab">Action <span class="cn">动作</span></div>
+          <div class="opts">
+            <div class="opt" tabindex="0">缓缓回头微笑</div>
+            <div class="opt" tabindex="0">在雨中奔跑</div>
+            <div class="opt" tabindex="0">从桌上一跃而下</div>
+            <div class="opt" tabindex="0">静止,热气袅袅上升</div>
+          </div>
+        </div>
+        <div class="bgroup" data-slot="camera">
+          <div class="lab">Camera <span class="cn">镜头运动</span></div>
+          <div class="opts">
+            <div class="opt" tabindex="0">镜头缓缓推近</div>
+            <div class="opt" tabindex="0">环绕主体旋转</div>
+            <div class="opt" tabindex="0">手持跟拍</div>
+            <div class="opt" tabindex="0">固定机位</div>
+          </div>
+        </div>
+        <div class="bgroup" data-slot="light">
+          <div class="lab">Light <span class="cn">光线</span></div>
+          <div class="opts">
+            <div class="opt" tabindex="0">黄昏暖光</div>
+            <div class="opt" tabindex="0">霓虹夜景</div>
+            <div class="opt" tabindex="0">柔和晨光</div>
+            <div class="opt" tabindex="0">电影感冷调</div>
+          </div>
+        </div>
+        <div class="bgroup" data-slot="style">
+          <div class="lab">Style <span class="cn">风格 / 画质</span></div>
+          <div class="opts">
+            <div class="opt" tabindex="0">电影感,浅景深</div>
+            <div class="opt" tabindex="0">日系胶片质感</div>
+            <div class="opt" tabindex="0">3D 皮克斯风</div>
+            <div class="opt" tabindex="0">4K 超写实</div>
+          </div>
+        </div>
+
+        <div class="out">
+          <div class="olab">
+            <span>Generated Prompt</span>
+            <button class="copybtn" id="copyBtn">复制</button>
+          </div>
+          <div id="promptOut"><span class="ph">↑ 从上面每组各点一个,提示词会实时拼在这里……</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:19px;margin:44px 0 0;font-weight:700">📷 镜头运动术语速查</h3>
+    <p style="color:var(--ink-dim);margin:6px 0 0;font-size:15px">会这几个词,你的提示词立刻从「业余」跨到「懂行」。中英文都写进提示词更保险。</p>
+    <div class="cams">
+      <div class="cam-item"><span class="term">push in<b>推</b></span><span class="exp">镜头靠近主体,聚焦、代入,制造紧张或亲密感</span></div>
+      <div class="cam-item"><span class="term">pull back<b>拉</b></span><span class="exp">镜头后退,交代环境,常用作结尾抽离</span></div>
+      <div class="cam-item"><span class="term">pan<b>摇</b></span><span class="exp">机位不动,左右扫过,展现横向空间</span></div>
+      <div class="cam-item"><span class="term">tilt<b>俯仰</b></span><span class="exp">上下摆动,由脚扫到头、或仰望高楼</span></div>
+      <div class="cam-item"><span class="term">tracking<b>跟拍</b></span><span class="exp">跟着主体移动,带出动感与陪伴感</span></div>
+      <div class="cam-item"><span class="term">orbit / arc<b>环绕</b></span><span class="exp">绕主体转圈,炫产品、强调重要时刻</span></div>
+      <div class="cam-item"><span class="term">aerial<b>航拍</b></span><span class="exp">高空俯瞰,大气开场必备</span></div>
+      <div class="cam-item"><span class="term">handheld<b>手持</b></span><span class="exp">轻微晃动,纪实感、真实感</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 上手练习 ================= -->
+<section class="sec" id="project">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">// 04 &nbsp;动手做</div>
+      <h2>第一个项目:15 秒的产品短片</h2>
+      <p>看再多不如做一遍。挑一个你身边的东西(一杯咖啡、一双鞋、一支笔),照这五步走完,你就完整跑通了一次 AI 视频全流程。</p>
+    </div>
+    <div class="project rv">
+      <h3>☕ 「一杯咖啡的清晨」· 15 秒</h3>
+      <p class="brief">目标:三个镜头,配一段旁白和轻音乐,竖屏发小红书。总时长控制在 15 秒内。</p>
+      <div class="tasks">
+        <div class="task">
+          <div class="tc">1</div>
+          <div>
+            <h4>让 AI 写 3 镜分镜表</h4>
+            <p>对话 AI:<code>帮我写一条15秒咖啡短片的分镜,3个镜头,含画面/时长/旁白</code>。它会给你镜头1「咖啡豆倒入」、镜头2「热水注入」、镜头3「端起品尝」之类。</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="tc">2</div>
+          <div>
+            <h4>每镜生成一张关键帧图</h4>
+            <p>去即梦/Midjourney,按每镜描述各出一张图。固定风格词 <code>暖光 · 浅景深 · 电影感</code>,三张图色调统一。</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="tc">3</div>
+          <div>
+            <h4>三张图分别图生视频</h4>
+            <p>在可灵里逐张生成 5 秒。运镜分别写 <code>镜头缓缓推近</code> / <code>俯拍固定</code> / <code>手持跟拍</code>。每张多抽 2-3 条挑最稳的。</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="tc">4</div>
+          <div>
+            <h4>配旁白 + 背景乐</h4>
+            <p>旁白丢给 ElevenLabs 或豆包出人声;Suno 里写 <code>轻柔慵懒的晨间爵士</code> 生成一段 15 秒 BGM。</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="tc">5</div>
+          <div>
+            <h4>剪映拼起来导出</h4>
+            <p>三段视频按顺序拖进时间线,铺上音乐旁白,加字幕、卡节奏、调色,导 <code>9:16 · 1080p</code>。完成!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 避坑 ================= -->
+<section class="sec" id="pit">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">// 05 &nbsp;避坑</div>
+      <h2>新手最常踩的六个坑</h2>
+      <p>这些是几乎每个人第一次都会犯的错。提前知道,能省下大把重抽的时间和额度。</p>
+    </div>
+    <div class="pits">
+      <div class="pit rv">
+        <h4><span class="x">✕</span> 一条 clip 塞太多动作</h4>
+        <p>「转身+挥手+下雨+镜头拉远」全写一起,AI 会糊成一团。<span class="fix">→ 一镜一个主要动作,拆开生成。</span></p>
+      </div>
+      <div class="pit rv">
+        <h4><span class="x">✕</span> 提示词全是形容词</h4>
+        <p>「唯美、震撼、高级」这类词 AI 无从下手。<span class="fix">→ 换成具体的主体、动作、光线、镜头。</span></p>
+      </div>
+      <div class="pit rv">
+        <h4><span class="x">✕</span> 追求一次就完美</h4>
+        <p>AI 视频有随机性,第一条几乎都不理想。<span class="fix">→ 同一提示词多抽几条,挑最好的,这是常态。</span></p>
+      </div>
+      <div class="pit rv">
+        <h4><span class="x">✕</span> 忽略画幅一致</h4>
+        <p>有的镜头 16:9 有的 9:16,剪起来黑边一堆。<span class="fix">→ 开工前先定死画幅,全程统一。</span></p>
+      </div>
+      <div class="pit rv">
+        <h4><span class="x">✕</span> 只顾画面不管声音</h4>
+        <p>没有音乐音效的 AI 视频,再美也「空」。<span class="fix">→ 配乐 + 环境音,质感立刻翻倍。</span></p>
+      </div>
+      <div class="pit rv">
+        <h4><span class="x">✕</span> 不检查穿帮就发</h4>
+        <p>多指、闪烁、文字乱码是 AI 通病。<span class="fix">→ 导出前放慢逐帧看一遍,修掉硬伤。</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <h3>杀青 · That's a wrap 🎬</h3>
+    <p>现在你有了完整地图:两条路线、四类工具、六步流程、一个能上手的项目。别停在看——打开工具,把那 15 秒咖啡短片做出来。</p>
+    <a href="#idea" class="btn ghost">↑ 回到开头再走一遍</a>
+    <div class="meta">AI VIDEO LAB · 零基础到第一条片子 · 2026</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // theme toggle
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){ cur = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+    root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+
+  // reveal on scroll
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+
+  // prompt builder
+  var slots={subject:'',action:'',camera:'',light:'',style:''};
+  document.querySelectorAll('.bgroup').forEach(function(group){
+    var slot=group.getAttribute('data-slot');
+    group.querySelectorAll('.opt').forEach(function(opt){
+      function pick(){
+        group.querySelectorAll('.opt').forEach(function(o){o.setAttribute('aria-pressed','false');});
+        opt.setAttribute('aria-pressed','true');
+        slots[slot]=opt.textContent.trim();
+        render();
+      }
+      opt.addEventListener('click',pick);
+      opt.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pick();} });
+    });
+  });
+  var out=document.getElementById('promptOut');
+  function render(){
+    var any=slots.subject||slots.action||slots.camera||slots.light||slots.style;
+    if(!any){ out.innerHTML='<span class="ph">↑ 从上面每组各点一个,提示词会实时拼在这里……</span>'; return; }
+    var parts=[];
+    if(slots.subject) parts.push('<em>'+slots.subject+'</em>');
+    if(slots.action) parts.push(slots.action);
+    if(slots.camera) parts.push('<span class="cam">'+slots.camera+'</span>');
+    if(slots.light) parts.push(slots.light);
+    if(slots.style) parts.push(slots.style);
+    out.innerHTML=parts.join('<span style="color:var(--ink-faint)"> ，</span>')+'<span style="color:var(--ink-faint)"> 。</span>';
+  }
+  document.getElementById('copyBtn').addEventListener('click',function(){
+    var txt=out.textContent.replace(/^↑.*$/,'');
+    if(!txt.trim()||txt.indexOf('从上面')>-1){ this.textContent='先点几项'; var b=this; setTimeout(function(){b.textContent='复制';},1200); return; }
+    var b=this;
+    navigator.clipboard.writeText(txt).then(function(){ b.textContent='已复制 ✓'; setTimeout(function(){b.textContent='复制';},1400); })
+    .catch(function(){ b.textContent='已复制 ✓'; setTimeout(function(){b.textContent='复制';},1400); });
+  });
+})();
+</script>
+</body>
+</html>
