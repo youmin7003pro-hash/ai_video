@@ -283,6 +283,38 @@
   .foot p{color:var(--ink-dim);max-width:520px;margin:0 auto 24px}
   .foot .meta{margin-top:40px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:.06em}
 
+  /* key idea callout */
+  .keyidea{display:flex;gap:20px;align-items:flex-start;background:var(--panel);
+    border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:26px;
+    position:relative;overflow:hidden}
+  .keyidea::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(var(--amber),var(--amber-deep))}
+  .keyidea .ktag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;
+    color:var(--amber);border:1px solid var(--amber);border-radius:8px;padding:6px 10px;
+    white-space:nowrap;margin-top:3px}
+  .keyidea .ktxt{font-size:16.5px;color:var(--ink-dim);margin:0}
+  .keyidea .ktxt b{color:var(--ink);font-weight:700}
+  .keyidea .ktxt .big{display:block;font-size:19px;color:var(--ink);font-weight:700;margin-bottom:6px}
+  @media(max-width:560px){.keyidea{flex-direction:column;gap:14px}}
+
+  /* tool access tags */
+  .cat li .nm{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .acc{font-family:var(--mono);font-size:9.5px;padding:1.5px 6px;border-radius:4px;letter-spacing:.02em;font-weight:500;white-space:nowrap}
+  .acc.cn{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}
+  .acc.vpn{border:1px solid var(--line);color:var(--ink-faint)}
+  .maplegend{display:inline-flex;gap:8px;margin-left:4px;vertical-align:middle}
+
+  /* interactive checklist state on project tasks */
+  .task{cursor:pointer;user-select:none}
+  .task .tc{transition:background .15s ease,color .15s ease,border-color .15s ease}
+  .task.done .tc{background:var(--teal);border-color:var(--teal);color:var(--bg)}
+  .task.done .tc .n{display:none}
+  .task.done .tc::after{content:"✓";font-weight:700}
+  .task.done h4{text-decoration:line-through;color:var(--ink-faint)}
+  .task.done p{opacity:.55}
+  .progresshint{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+  .progresshint b{color:var(--teal)}
+
   /* reveal */
   .rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
   .rv.in{opacity:1;transform:none}
@@ -335,6 +367,13 @@
       <h2>两条主路线,先搞清你走哪条</h2>
       <p>所有 AI 视频工具,本质上都是这两种玩法之一。新手强烈建议从右边的「图生视频」入手——可控性高到不是一个量级。</p>
     </div>
+    <div class="keyidea rv">
+      <span class="ktag">核心心法</span>
+      <p class="ktxt">
+        <span class="big">AI 不是「导演」,它是「特效外包」。</span>
+        没有任何模型能一次性帮你想好故事、拍好每个镜头、剪好节奏。你才是导演——把片子拆成一个个 <b>5–10 秒的短镜头</b>,每镜单独生成、多抽几条挑最好,再自己拼起来。<b>成片质量 = 你的分镜能力 × 抽卡耐心,而不是模型有多神。</b>理解这一点,你就超过了 90% 「试了几次觉得 AI 视频不行」的人。
+      </p>
+    </div>
     <div class="paths">
       <div class="path t2v rv">
         <div class="tag">Path A</div>
@@ -369,45 +408,45 @@
     <div class="sec-head rv">
       <div class="num">// 01 &nbsp;工具地图</div>
       <h2>手里该备哪些工具</h2>
-      <p>工具太多会挑花眼。按「用途」分四类记就够了,每类挑一个上手即可。带 <span style="color:var(--amber);font-family:var(--mono)">★</span> 的是当下综合体验最省心的。</p>
+      <p>工具太多会挑花眼。按「用途」分四类记就够了,每类挑一个上手即可。带 <span style="color:var(--amber);font-family:var(--mono)">★</span> 的是当下综合体验最省心的;<span class="acc cn">国内</span> 可直连,<span class="acc vpn">需梯子</span> 是境外服务。</p>
     </div>
     <div class="grid4">
       <div class="cat rv">
         <div class="sub">Generate</div>
         <h3>🎬 生成画面</h3>
         <ul>
-          <li><span class="nm">可灵 Kling<span class="star">★</span></span><span class="ds">中文友好,运动稳,图生视频强</span></li>
-          <li><span class="nm">Sora 2</span><span class="ds">OpenAI,叙事与物理感领先</span></li>
-          <li><span class="nm">Google Veo 3</span><span class="ds">能直接生成同步音效</span></li>
-          <li><span class="nm">Runway Gen-4</span><span class="ds">运镜控制、特效工具丰富</span></li>
-          <li><span class="nm">海螺 / 即梦</span><span class="ds">国内免费额度友好</span></li>
+          <li><span class="nm">可灵 Kling<span class="star">★</span><span class="acc cn">国内</span></span><span class="ds">中文友好,运动稳,图生视频强</span></li>
+          <li><span class="nm">Sora 2<span class="acc vpn">需梯子</span></span><span class="ds">OpenAI,叙事与物理感领先</span></li>
+          <li><span class="nm">Google Veo 3<span class="acc vpn">需梯子</span></span><span class="ds">能直接生成同步音效</span></li>
+          <li><span class="nm">Runway Gen-4<span class="acc vpn">需梯子</span></span><span class="ds">运镜控制、特效工具丰富</span></li>
+          <li><span class="nm">海螺 / 即梦<span class="acc cn">国内</span></span><span class="ds">国内免费额度友好</span></li>
         </ul>
       </div>
       <div class="cat rv">
         <div class="sub">Keyframe</div>
         <h3>🖼 生成分镜图</h3>
         <ul>
-          <li><span class="nm">即梦 / Midjourney<span class="star">★</span></span><span class="ds">出关键帧、定人物与风格</span></li>
-          <li><span class="nm">Nano Banana</span><span class="ds">改图、保持角色一致性</span></li>
-          <li><span class="nm">Flux</span><span class="ds">开源、可本地跑</span></li>
+          <li><span class="nm">即梦 / Midjourney<span class="star">★</span><span class="acc cn">即梦国内</span></span><span class="ds">出关键帧、定人物与风格</span></li>
+          <li><span class="nm">Nano Banana<span class="acc vpn">需梯子</span></span><span class="ds">改图、保持角色一致性</span></li>
+          <li><span class="nm">Flux<span class="acc vpn">开源本地</span></span><span class="ds">开源、可本地跑</span></li>
         </ul>
       </div>
       <div class="cat rv">
         <div class="sub">Audio</div>
         <h3>🎙 配音与音乐</h3>
         <ul>
-          <li><span class="nm">ElevenLabs<span class="star">★</span></span><span class="ds">拟真配音、多语言</span></li>
-          <li><span class="nm">豆包 / 火山语音</span><span class="ds">中文 TTS,免费好用</span></li>
-          <li><span class="nm">Suno</span><span class="ds">一句话生成背景音乐</span></li>
+          <li><span class="nm">ElevenLabs<span class="star">★</span><span class="acc vpn">需梯子</span></span><span class="ds">拟真配音、多语言</span></li>
+          <li><span class="nm">豆包 / 火山语音<span class="acc cn">国内</span></span><span class="ds">中文 TTS,免费好用</span></li>
+          <li><span class="nm">Suno<span class="acc vpn">需梯子</span></span><span class="ds">一句话生成背景音乐</span></li>
         </ul>
       </div>
       <div class="cat rv">
         <div class="sub">Assemble</div>
         <h3>✂️ 剪辑与数字人</h3>
         <ul>
-          <li><span class="nm">剪映 / CapCut<span class="star">★</span></span><span class="ds">拼接、字幕、调色一条龙</span></li>
-          <li><span class="nm">HeyGen</span><span class="ds">数字人口播视频</span></li>
-          <li><span class="nm">DaVinci</span><span class="ds">专业调色与后期</span></li>
+          <li><span class="nm">剪映 / CapCut<span class="star">★</span><span class="acc cn">国内</span></span><span class="ds">拼接、字幕、调色一条龙</span></li>
+          <li><span class="nm">HeyGen<span class="acc vpn">需梯子</span></span><span class="ds">数字人口播视频</span></li>
+          <li><span class="nm">DaVinci<span class="acc cn">可本地</span></span><span class="ds">专业调色与后期</span></li>
         </ul>
       </div>
     </div>
@@ -587,41 +626,42 @@
       <p class="brief">目标:三个镜头,配一段旁白和轻音乐,竖屏发小红书。总时长控制在 15 秒内。</p>
       <div class="tasks">
         <div class="task">
-          <div class="tc">1</div>
+          <div class="tc"><span class="n">1</span></div>
           <div>
             <h4>让 AI 写 3 镜分镜表</h4>
             <p>对话 AI:<code>帮我写一条15秒咖啡短片的分镜,3个镜头,含画面/时长/旁白</code>。它会给你镜头1「咖啡豆倒入」、镜头2「热水注入」、镜头3「端起品尝」之类。</p>
           </div>
         </div>
         <div class="task">
-          <div class="tc">2</div>
+          <div class="tc"><span class="n">2</span></div>
           <div>
             <h4>每镜生成一张关键帧图</h4>
             <p>去即梦/Midjourney,按每镜描述各出一张图。固定风格词 <code>暖光 · 浅景深 · 电影感</code>,三张图色调统一。</p>
           </div>
         </div>
         <div class="task">
-          <div class="tc">3</div>
+          <div class="tc"><span class="n">3</span></div>
           <div>
             <h4>三张图分别图生视频</h4>
             <p>在可灵里逐张生成 5 秒。运镜分别写 <code>镜头缓缓推近</code> / <code>俯拍固定</code> / <code>手持跟拍</code>。每张多抽 2-3 条挑最稳的。</p>
           </div>
         </div>
         <div class="task">
-          <div class="tc">4</div>
+          <div class="tc"><span class="n">4</span></div>
           <div>
             <h4>配旁白 + 背景乐</h4>
             <p>旁白丢给 ElevenLabs 或豆包出人声;Suno 里写 <code>轻柔慵懒的晨间爵士</code> 生成一段 15 秒 BGM。</p>
           </div>
         </div>
         <div class="task">
-          <div class="tc">5</div>
+          <div class="tc"><span class="n">5</span></div>
           <div>
             <h4>剪映拼起来导出</h4>
             <p>三段视频按顺序拖进时间线,铺上音乐旁白,加字幕、卡节奏、调色,导 <code>9:16 · 1080p</code>。完成!</p>
           </div>
         </div>
       </div>
+      <div class="progresshint">点击每一步打勾 · 已完成 <b id="taskDone">0</b> / 5 &nbsp;——&nbsp; 第一条不追求完美,追求「完成」。</div>
     </div>
   </div>
 </section>
@@ -715,6 +755,19 @@
     if(slots.style) parts.push(slots.style);
     out.innerHTML=parts.join('<span style="color:var(--ink-faint)"> ，</span>')+'<span style="color:var(--ink-faint)"> 。</span>';
   }
+  // interactive project checklist
+  var tasks=document.querySelectorAll('.project .task'), doneEl=document.getElementById('taskDone');
+  tasks.forEach(function(t){
+    function toggle(){
+      t.classList.toggle('done');
+      if(doneEl) doneEl.textContent=document.querySelectorAll('.project .task.done').length;
+    }
+    t.setAttribute('role','button');
+    t.setAttribute('tabindex','0');
+    t.addEventListener('click',toggle);
+    t.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();toggle();} });
+  });
+
   document.getElementById('copyBtn').addEventListener('click',function(){
     var txt=out.textContent.replace(/^↑.*$/,'');
     if(!txt.trim()||txt.indexOf('从上面')>-1){ this.textContent='先点几项'; var b=this; setTimeout(function(){b.textContent='复制';},1200); return; }
